@@ -1,12 +1,11 @@
-from fastapi import FastAPI, UploadFile, File
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import Response
+from fastapi.middleware.cors import CORSMiddleware
 from rembg import remove
 
-# 1. إنشاء تطبيق FastAPI
-app = FastAPI(title="AI Background Remover API")
+app = FastAPI()
 
-# 2. إضافة إعدادات CORS للسماح للواجهة (index.html) بالاتصال بالسيرفر بدون حظر
+# تفعيل CORS للتسماح لـ Netlify بالاتصال بالخادم
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -15,9 +14,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 3. نقطة النهاية لمعالجة وإزالة الخلفية
-@app.post("/remove-bg/")
+@app.get("/")
+def home():
+    return {"status": "online"}
+
+@app.post("/remove-bg")
 async def remove_background(file: UploadFile = File(...)):
-    image_bytes = await file.read()
-    output_bytes = remove(image_bytes)
-    return Response(content=output_bytes, media_type="image/png")
+    try:
+        input_image = await file.read()
+        output_image = remove(input_image)
+        return Response(content=output_image, media_type="image/png")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
