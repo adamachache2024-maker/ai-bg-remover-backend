@@ -15,7 +15,7 @@ app.add_middleware(
 
 @app.get("/")
 def home():
-    return {"status": "online"}
+    return {"status": "ok"}
 
 @app.post("/remove-bg")
 async def remove_background(file: UploadFile = File(...)):
