@@ -5,18 +5,22 @@ from rembg import remove
 
 app = FastAPI()
 
-# تفعيل CORS للتسماح لـ Netlify بالاتصال بالخادم
+# إعداد أذونات CORS الشاملة مع السماح لطلبات OPTIONS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
 @app.get("/")
 def home():
     return {"status": "online"}
+
+@app.options("/remove-bg")
+async def options_remove_bg():
+    return Response(status_code=200)
 
 @app.post("/remove-bg")
 async def remove_background(file: UploadFile = File(...)):
