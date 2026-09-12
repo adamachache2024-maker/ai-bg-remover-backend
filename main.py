@@ -2,6 +2,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 from rembg import remove
+import io
 
 app = FastAPI()
 
@@ -22,10 +23,8 @@ def read_root():
 async def remove_background(file: UploadFile = File(...)):
     try:
         input_bytes = await file.read()
+        # معالجة الصورة باستخدام rembg
         output_bytes = remove(input_bytes)
         return Response(content=output_bytes, media_type="image/png")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=10000, reload=True)
